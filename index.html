@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Statistics Experiment</title>
+        <style>
+            @font-face {
+                font-family: "Forma DJR";
+                src: url("FormaDJRText-Regular-Testing.otf");
+                font-weight: normal;
+                font-style: normal;
+            }
+
+            @font-face {
+                font-family: "Forma DJR";
+                src: url("FormaDJRText-Regular-Testing.otf");
+                font-weight: bold;
+                font-style: normal;
+            }
+
+            body {
+                background-color: #001833;
+                color: #4df4ff;
+                font-family: "Forma DJR", sans-serif;
+                margin: 0;
+                padding: 20px 0 20px 0;
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            .header {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 20px;
+            }
+
+            /* ...existing code... */
+
+            .top-bar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 5px 0;
+                margin-top: 55px;
+                position: absolute;
+                width: 100%;
+                /* Removed original border */
+            }
+
+            .top-bar::before,
+            .top-bar::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                width: 100%;
+                border-bottom: 1px solid #4df4ff;
+            }
+
+            /* Shifted for more spacing */
+            .top-bar::before {
+                bottom: 0;
+            }
+
+            .top-bar::after {
+                bottom: 4px;
+            }
+
+            .bottom-bar {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 30px;
+                padding-top: 10px;
+                position: relative;
+                /* Removed original border */
+            }
+
+            .bottom-bar::before,
+            .bottom-bar::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                width: 100%;
+                border-top: 1px solid #4df4ff;
+            }
+
+            /* Shifted for more spacing */
+            .bottom-bar::before {
+                top: 0;
+            }
+
+            .bottom-bar::after {
+                top: 4px;
+            }
+
+            /* ...existing code... */
+
+            .experiment-name {
+                font-size: 1.75rem;
+                font-weight: bold;
+                margin-left: 7%;
+                margin-top: 3px;
+            }
+
+            .completion {
+                display: flex;
+                align-items: center;
+                position: absolute;
+                top: -52px;
+                right: 180px;
+                font-size: 1.75rem;
+                color: #001833;
+                -webkit-text-stroke: 1px #4df4ff;
+            }
+
+            .progress-container {
+                height: 35px;
+                background-color: #001833;
+                border: 1px solid #4df4ff;
+                border-right: none;
+                width: 88%;
+                margin-left: 6%;
+                position: absolute;
+                z-index: -1;
+            }
+
+            .markers {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+                padding: 5px 0;
+            }
+
+            .marker {
+                font-size: 0.7rem;
+            }
+
+            .content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .participant-selection {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .btn-group {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .controls {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+
+            #repeat-btn {
+                font-size: 1.5rem;
+                padding: 5px 15px;
+            }
+
+            .btn {
+                background-color: #001833;
+                color: #4df4ff;
+                border: 1px solid #4df4ff;
+                padding: 8px 15px;
+                cursor: pointer;
+                font-family: "Forma DJR", sans-serif;
+                font-size: 1rem;
+                transition: background-color 0.3s, color 0.3s;
+            }
+
+            .btn:hover,
+            .btn.selected {
+                background-color: #4df4ff;
+                color: #001833;
+            }
+
+            .factor-selection {
+                display: none;
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+                width: 100%;
+                max-width: 600px;
+            }
+
+            .factor {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .factor-label {
+                margin-bottom: 5px;
+                font-size: 1rem;
+            }
+
+            .problem-container {
+                display: none;
+                flex-direction: column;
+                align-items: center;
+                gap: 100px;
+                width: 100%;
+                /* max-width: 600px; */
+                font-size: 8rem;
+            }
+
+            .problem {
+                height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            input[type="text"] {
+                background-color: transparent;
+                border: none;
+                border-bottom: 2px solid #4df4ff;
+                color: #4df4ff;
+                font-family: "Forma DJR", sans-serif;
+                font-size: 6rem;
+                text-align: center;
+                width: 180px;
+                outline: none;
+            }
+
+            .results {
+                display: none;
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .hex-code {
+                font-size: 1rem;
+            }
+
+            #time-result {
+                font-size: 1.2rem;
+            }
+
+            .status {
+                text-align: center;
+                margin-top: -28px;
+                height: 1.5em;
+                font-size: 1rem;
+            }
+
+            #logo {
+                position: absolute;
+                top: -67px;
+                right: 52px;
+                width: 120px;
+            }
+
+            .progress-fill {
+                height: 100%;
+                width: 0;
+                background: repeating-linear-gradient(
+                    90deg,
+                    rgba(77, 244, 255, 0.5),
+                    rgba(77, 244, 255, 0.5) 10px,
+                    transparent 10px,
+                    transparent 20px
+                );
+                transition: width 0.6s;
+            }
+
+            .number-grid {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                z-index: -2;
+                color: rgba(
+                    77,
+                    244,
+                    255,
+                    0.25
+                ); /* Increased opacity from 0.15 to 0.25 */
+                font-size: 18px; /* Increased from 14px to 18px */
+                font-weight: bold;
+                pointer-events: none;
+                overflow: hidden;
+                margin-top: 80px; /* Added to keep numbers below top bar */
+                margin-bottom: 20px;
+                height: calc(100% - 0px);
+            }
+
+            .already-complete {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 75%;
+                height: 50%;
+                padding: 20px;
+                border: 5px solid #4df4ff; /* light blue border */
+                background-color: #001833; /* dark blue fill */
+                font-size: 10rem;
+                color: #4df4ff;
+                margin: 20px auto;
+                box-sizing: border-box;
+                animation: growFromCenter 0.6s ease-out forwards;
+            }
+
+            .number {
+                position: absolute;
+                width: 40px; /* Increased from 30px to match larger font */
+                height: 40px; /* Increased from 30px to match larger font */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .static {
+                animation: none;
+            }
+
+            .vertical {
+                animation: floatVertical 12s linear infinite;
+            }
+
+            .horizontal {
+                animation: floatHorizontal 16s linear infinite;
+            }
+
+            @keyframes growFromCenter {
+                from {
+                    transform: scale(0);
+                }
+                to {
+                    transform: scale(1);
+                }
+            }
+
+            @keyframes floatVertical {
+                0%,
+                100% {
+                    transform: translateY(0);
+                }
+                25% {
+                    transform: translateY(10px);
+                }
+                75% {
+                    transform: translateY(-10px);
+                }
+            }
+
+            @keyframes floatHorizontal {
+                0%,
+                100% {
+                    transform: translateX(0);
+                }
+                25% {
+                    transform: translateX(10px);
+                }
+                75% {
+                    transform: translateX(-10px);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="number-grid" id="numberGrid"></div>
+        <div class="header">
+            <div class="experiment-name" id="experiment-name"></div>
+            <div class="top-bar">
+                <div class="completion">
+                    <span id="completion-text" hidden>0% Complete</span>
+                </div>
+                <img src="lumon.png" id="logo" />
+            </div>
+            <div class="progress-container">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="participant-selection" id="participant-selection">
+                <h1>Select Participant</h1>
+                <div class="btn-group">
+                    <button class="btn" onclick="selectParticipant('Patrick')">
+                        Patrick
+                    </button>
+                    <button class="btn" onclick="selectParticipant('Declan')">
+                        Declan
+                    </button>
+                    <button class="btn" onclick="selectParticipant('Ty')">
+                        Ty
+                    </button>
+                    <button class="btn" onclick="selectParticipant('Sophia')">
+                        Sophia
+                    </button>
+                </div>
+            </div>
+
+            <div class="factor-selection" id="factor-selection">
+                <h2 id="participant-name"></h2>
+
+                <div class="factor">
+                    <div class="factor-label">Background Audio:</div>
+                    <div class="btn-group">
+                        <button
+                            class="btn"
+                            onclick="selectFactor('audio', '-')"
+                        >
+                            No Audio (-)
+                        </button>
+                        <button
+                            class="btn"
+                            onclick="selectFactor('audio', '+')"
+                        >
+                            Classical Music (+)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="factor">
+                    <div class="factor-label">Problem Type:</div>
+                    <div class="btn-group">
+                        <button
+                            class="btn"
+                            onclick="selectFactor('problem', '-')"
+                        >
+                            Addition (-)
+                        </button>
+                        <button
+                            class="btn"
+                            onclick="selectFactor('problem', '+')"
+                        >
+                            Multiplication (+)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="factor">
+                    <div class="factor-label">Presentation Method:</div>
+                    <div class="btn-group">
+                        <button
+                            class="btn"
+                            onclick="selectFactor('presentation', '-')"
+                        >
+                            Written (-)
+                        </button>
+                        <button
+                            class="btn"
+                            onclick="selectFactor('presentation', '+')"
+                        >
+                            Read Aloud (+)
+                        </button>
+                    </div>
+                </div>
+
+                <button
+                    class="btn"
+                    id="start-btn"
+                    style="visibility: hidden"
+                    disabled
+                    onclick="startExperiment()"
+                >
+                    Start Experiment
+                </button>
+            </div>
+
+            <div class="problem-container" id="problem-container">
+                <div class="problem" id="problem-display"></div>
+                <div class="controls">
+                    <input
+                        type="text"
+                        id="answer-input"
+                        maxlength="3"
+                        autocomplete="off"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        spellcheck="false"
+                        onblur="this.focus()"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                        onkeypress="checkEnter(event)"
+                    />
+                    <button
+                        class="btn"
+                        id="repeat-btn"
+                        onclick="repeatProblem()"
+                        style="display: none"
+                    >
+                        Repeat
+                    </button>
+                </div>
+            </div>
+
+            <div class="results" id="results">
+                <h1>Experiment Complete</h1>
+                <div class="time-result" id="time-result"></div>
+                <button class="btn" onclick="resetExperiment()">
+                    Continue
+                </button>
+            </div>
+
+            <div class="status" id="status"></div>
+        </div>
+
+        <div class="bottom-bar">
+            <div class="hex-code">
+                0x15084A&nbsp&nbsp&nbsp&nbsp&nbsp:&nbsp&nbsp&nbsp&nbsp&nbsp0x0AEAFC
+            </div>
+        </div>
+
+        <audio id="classical-music" loop>
+            <source src="classical.m4a" type="audio/mpeg" />
+        </audio>
+
+        <script type="module">
+            // Import the functions you need from the SDKs you need
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+            import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-analytics.js";
+            import { getFirestore } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+            // TODO: Add SDKs for Firebase products that you want to use
+            // https://firebase.google.com/docs/web/setup#available-libraries
+
+            // Your web app's Firebase configuration
+            // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+            const firebaseConfig = {
+                apiKey: "AIzaSyDLg8XIylJr-LIDes_Pc0j5lez4F4pQJZ8",
+                authDomain: "stat-325-bjmp.firebaseapp.com",
+                projectId: "stat-325-bjmp",
+                storageBucket: "stat-325-bjmp.firebasestorage.app",
+                messagingSenderId: "716158643037",
+                appId: "1:716158643037:web:b55e53bc4267f3af2616b4",
+                measurementId: "G-0JNC8K3J5P",
+            };
+
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const analytics = getAnalytics(app);
+            const db = getFirestore(app);
+            // Expose Firestore db for non-module code
+            window.db = db;
+        </script>
+
+        <script type="module">
+            import {
+                collection,
+                addDoc,
+                query,
+                where,
+                getDocs,
+            } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+            const NUM_CORRECT = 2;
+
+            async function saveResult(result) {
+                try {
+                    await addDoc(collection(window.db, "results"), result);
+                } catch (err) {
+                    console.error("Error saving result", err);
+                }
+            }
+
+            async function loadParticipantResults(participant) {
+                const q = query(
+                    collection(window.db, "results"),
+                    where("participant", "==", participant)
+                );
+                const querySnapshot = await getDocs(q);
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const comboKey = `${data.participant}_${data.factors.audio}_${data.factors.problem}_${data.factors.presentation}`;
+                    state.completedCombinations[comboKey] = true;
+                });
+                state.resultsLoaded = true;
+                updateProgress();
+
+                // Check if participant has completed all combinations
+                const totalCombinations = 8;
+                let completed = 0;
+                for (const key in state.completedCombinations) {
+                    if (key.startsWith(state.participant)) {
+                        completed++;
+                    }
+                }
+                const percentage = Math.floor(
+                    (completed / totalCombinations) * 100
+                );
+
+                if (percentage === 100) {
+                    // Show 100% completion rectangle
+                    document.getElementById("factor-selection").style.display =
+                        "none";
+                    let completeDiv =
+                        document.getElementById("already-complete");
+                    if (!completeDiv) {
+                        completeDiv = document.createElement("div");
+                        completeDiv.id = "already-complete";
+                        completeDiv.classList.add("already-complete");
+                        completeDiv.textContent = "100%";
+                        document
+                            .querySelector(".content")
+                            .appendChild(completeDiv);
+                    }
+                } else {
+                    document.getElementById("factor-selection").style.display =
+                        "flex";
+                    const completeDiv =
+                        document.getElementById("already-complete");
+                    if (completeDiv) {
+                        completeDiv.remove();
+                    }
+                }
+            }
+
+            function createNumberGrid() {
+                const grid = document.getElementById("numberGrid");
+                const columns = Math.floor(window.innerWidth / 50) + 1;
+                const availableHeight = window.innerHeight - 150; // Adjust for margins
+                const rows = Math.floor(availableHeight / 50) + 1;
+
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < columns; j++) {
+                        const number = document.createElement("div");
+                        number.className = "number";
+                        number.textContent = Math.floor(Math.random() * 10);
+
+                        // Position
+                        number.style.left = `${j * 50}px`;
+                        number.style.top = `${i * 50}px`;
+
+                        // Reduce probability of animation
+                        const animationType = Math.random();
+                        if (animationType < 0.3) {
+                            number.classList.add("vertical");
+                        } else if (animationType < 0.6) {
+                            number.classList.add("horizontal");
+                        } else {
+                            number.classList.add("static");
+                        }
+
+                        grid.appendChild(number);
+                    }
+                }
+            }
+
+            // Add this to the end of the existing script content
+            window.addEventListener("load", createNumberGrid);
+            window.addEventListener("resize", () => {
+                document.getElementById("numberGrid").innerHTML = "";
+                createNumberGrid();
+            });
+
+            // Application state
+            const state = {
+                participant: null,
+                factors: {
+                    audio: null,
+                    problem: null,
+                    presentation: null,
+                },
+                completedCombinations: {},
+                resultsLoaded: false,
+                startTime: null,
+                problemCount: 0,
+                correctCount: 0,
+                currentProblem: null,
+            };
+
+            // Text-to-speech setup
+            const synth = window.speechSynthesis;
+
+            function selectParticipant(name) {
+                state.participant = name;
+                document.getElementById("experiment-name").textContent = name;
+                const compElem = document.getElementById("completion-text");
+                compElem.textContent = "";
+                compElem.setAttribute("hidden", "true");
+                // Hide both participant-selection and factor-selection until results load.
+                document.getElementById("participant-selection").style.display =
+                    "none";
+                document.getElementById("factor-selection").style.display =
+                    "none";
+                state.resultsLoaded = false;
+                loadParticipantResults(name);
+            }
+
+            function selectFactor(factor, value) {
+                state.factors[factor] = value;
+                // Update button styling remains unchanged...
+                const buttons = document.querySelectorAll(
+                    `.factor:nth-child(${getFactionIndex(factor)}) .btn`
+                );
+                buttons.forEach((btn) => btn.classList.remove("selected"));
+                const selectedIndex = value === "-" ? 0 : 1;
+                buttons[selectedIndex].classList.add("selected");
+
+                // Check if all factors are selected
+                const allSelected = Object.values(state.factors).every(
+                    (val) => val !== null
+                );
+                const startBtn = document.getElementById("start-btn");
+                if (allSelected) {
+                    const comboKey = getCombinationKey();
+                    if (state.completedCombinations[comboKey]) {
+                        startBtn.disabled = true;
+                        document.getElementById("status").textContent =
+                            "This combination has already been completed";
+                        startBtn.style.visibility = "hidden";
+                    } else {
+                        startBtn.disabled = false;
+                        document.getElementById("status").textContent = "";
+                        startBtn.style.visibility = "visible";
+                    }
+                } else {
+                    startBtn.style.visibility = "hidden";
+                }
+            }
+
+            function getFactionIndex(factor) {
+                const indexes = { audio: 1, problem: 2, presentation: 3 };
+                return indexes[factor] + 1; // Adjusted to account for header element
+            }
+
+            async function startExperiment() {
+                // Check if this combination has already been completed
+                const combination = getCombinationKey();
+                if (state.completedCombinations[combination]) {
+                    document.getElementById("status").textContent =
+                        "This combination has already been completed";
+                    return;
+                }
+                // Reset experiment counters and hide/display appropriate UI sections
+                state.problemCount = 0;
+                state.correctCount = 0;
+                state.currentProblem = null;
+                document.getElementById("status").textContent = "";
+                document.getElementById("problem-display").textContent = "";
+                document.getElementById("start-btn").style.visibility =
+                    "hidden";
+                document.getElementById("factor-selection").style.display =
+                    "none";
+                document.getElementById("problem-container").style.display =
+                    "flex";
+                if (state.factors.audio === "+") {
+                    document.getElementById("classical-music").play();
+                }
+                state.startTime = new Date();
+                generateProblem();
+            }
+
+            function generateProblem() {
+                let num1, num2, answer, problemText;
+                if (state.factors.problem === "-") {
+                    num1 = Math.floor(Math.random() * 90) + 10;
+                    num2 = Math.floor(Math.random() * 90) + 10;
+                    answer = num1 + num2;
+                    problemText = `${num1} + ${num2} = ?`;
+                } else {
+                    num1 = Math.floor(Math.random() * 90) + 10;
+                    num2 = Math.floor(Math.random() * 9) + 1;
+                    answer = num1 * num2;
+                    problemText = `${num1} × ${num2} = ?`;
+                }
+                state.currentProblem = { text: problemText, answer: answer };
+                if (state.factors.presentation === "-") {
+                    document.getElementById("problem-display").textContent =
+                        problemText;
+                    document.getElementById("repeat-btn").style.display =
+                        "none";
+                } else {
+                    let spokenText =
+                        state.factors.problem === "-"
+                            ? `${num1} plus ${num2}`
+                            : `${num1} times ${num2}`;
+                    speakProblem(spokenText);
+                    document.getElementById("repeat-btn").style.display =
+                        "block";
+                }
+                document.getElementById("answer-input").value = "";
+                document.getElementById("answer-input").focus();
+            }
+
+            function checkEnter(e) {
+                if (e.key === "Enter") {
+                    submitAnswer();
+                }
+            }
+
+            function submitAnswer() {
+                const userAnswer = parseInt(
+                    document.getElementById("answer-input").value
+                );
+                if (isNaN(userAnswer)) return;
+                if (userAnswer === state.currentProblem.answer) {
+                    state.correctCount++;
+                }
+                state.problemCount++;
+                if (state.correctCount >= NUM_CORRECT) {
+                    completeExperiment();
+                } else {
+                    generateProblem();
+                }
+            }
+
+            async function completeExperiment() {
+                const endTime = new Date();
+                const duration = endTime - state.startTime; // in ms
+                const seconds = Math.floor(duration / 1000);
+                const milliseconds = duration % 1000;
+                const formattedTime = `${seconds}.${milliseconds
+                    .toString()
+                    .padStart(3, "0")} seconds`;
+
+                // Stop classical music if playing
+                document.getElementById("classical-music").pause();
+                document.getElementById("classical-music").currentTime = 0;
+
+                // Play congrats audio with fade out
+                const congratsAudio = new Audio("congrats.m4a");
+                congratsAudio.volume = 1.0;
+                congratsAudio.play();
+
+                congratsAudio.addEventListener("loadedmetadata", () => {
+                    const totalDuration = congratsAudio.duration;
+                    const fadeStart = totalDuration / 2;
+                    const fadeDuration = totalDuration - fadeStart;
+                    // Wait until fadeStart, then periodically reduce volume
+                    setTimeout(() => {
+                        const fadeSteps = 20;
+                        const stepDuration = (fadeDuration * 1000) / fadeSteps;
+                        const volumeStep = congratsAudio.volume / fadeSteps;
+                        const fadeInterval = setInterval(() => {
+                            if (congratsAudio.volume > volumeStep) {
+                                congratsAudio.volume = Math.max(
+                                    0,
+                                    congratsAudio.volume - volumeStep
+                                );
+                            } else {
+                                congratsAudio.volume = 0;
+                                clearInterval(fadeInterval);
+                            }
+                        }, stepDuration);
+                    }, fadeStart * 1000);
+                });
+
+                const combination = getCombinationKey();
+                state.completedCombinations[combination] = true;
+
+                const accuracy = (
+                    (state.correctCount / state.problemCount) *
+                    100
+                ).toFixed(2);
+                // Save run result to Firestore including accuracy
+                const resultData = {
+                    participant: state.participant,
+                    factors: state.factors,
+                    duration: duration,
+                    problems: state.problemCount,
+                    correct: state.correctCount,
+                    accuracy: Number(accuracy),
+                    timestamp: new Date().toISOString(),
+                };
+                await saveResult(resultData);
+
+                document.getElementById("problem-container").style.display =
+                    "none";
+                document.getElementById("results").style.display = "flex";
+                document.getElementById(
+                    "time-result"
+                ).innerHTML = `Time to complete ${NUM_CORRECT} correct answers: ${formattedTime}<br>Accuracy: ${Math.round(
+                    accuracy
+                )}%`;
+                updateProgress();
+            }
+
+            function resetExperiment() {
+                // Hide results first
+                document.getElementById("results").style.display = "none";
+
+                // Check if participant has completed all combinations
+                const totalCombinations = 8;
+                let completed = 0;
+                for (const key in state.completedCombinations) {
+                    if (key.startsWith(state.participant)) {
+                        completed++;
+                    }
+                }
+                const percentage = Math.floor(
+                    (completed / totalCombinations) * 100
+                );
+
+                if (percentage === 100) {
+                    // Now show the 100% completion rectangle
+                    document.getElementById("factor-selection").style.display =
+                        "none";
+                    let completeDiv =
+                        document.getElementById("already-complete");
+                    if (!completeDiv) {
+                        completeDiv = document.createElement("div");
+                        completeDiv.id = "already-complete";
+                        completeDiv.classList.add("already-complete");
+                        completeDiv.textContent = "100%";
+                        document
+                            .querySelector(".content")
+                            .appendChild(completeDiv);
+                    }
+                } else {
+                    // Reset factors and show selection panel
+                    document.getElementById("factor-selection").style.display =
+                        "flex";
+                    state.factors.audio = null;
+                    state.factors.problem = null;
+                    state.factors.presentation = null;
+                    document
+                        .querySelectorAll(".factor .btn")
+                        .forEach((btn) => btn.classList.remove("selected"));
+                    document.getElementById("start-btn").disabled = true;
+                }
+            }
+
+            function getCombinationKey() {
+                return `${state.participant}_${state.factors.audio}_${state.factors.problem}_${state.factors.presentation}`;
+            }
+
+            function updateProgress() {
+                if (!state.participant || !state.resultsLoaded) return;
+                const totalCombinations = 8;
+                let completed = 0;
+                for (const key in state.completedCombinations) {
+                    if (key.startsWith(state.participant)) {
+                        completed++;
+                    }
+                }
+                const percentage = Math.floor(
+                    (completed / totalCombinations) * 100
+                );
+                const compElem = document.getElementById("completion-text");
+                compElem.textContent = `${percentage}% Complete`;
+                compElem.removeAttribute("hidden");
+
+                // Update the progress bar fill width
+                document.querySelector(
+                    ".progress-fill"
+                ).style.width = `${percentage}%`;
+
+                // Don't manage displays here - let loadParticipantResults and resetExperiment handle that
+            }
+
+            // Text-to-speech functions remain unchanged
+            let currentSpokenText = "";
+            function speakProblem(spokenText) {
+                currentSpokenText = spokenText;
+                const utterance = new SpeechSynthesisUtterance(spokenText);
+                window.speechSynthesis.speak(utterance);
+            }
+            function repeatProblem() {
+                document.getElementById("answer-input").focus();
+                if (currentSpokenText) {
+                    speakProblem(currentSpokenText);
+                }
+            }
+
+            window.selectParticipant = selectParticipant;
+            window.selectFactor = selectFactor;
+            window.startExperiment = startExperiment;
+            window.repeatProblem = repeatProblem;
+            window.checkEnter = checkEnter;
+            window.resetExperiment = resetExperiment;
+        </script>
+    </body>
+</html>
