@@ -31,6 +31,10 @@
                 overflow: hidden;
             }
 
+            h1 {
+                font-size: 2.5rem;
+            }
+
             .header {
                 display: flex;
                 flex-direction: column;
@@ -101,7 +105,7 @@
             .experiment-name {
                 font-size: 1.75rem;
                 font-weight: bold;
-                margin-left: 7%;
+                margin-left: calc(6% + 12px);
                 margin-top: 3px;
             }
 
@@ -110,7 +114,7 @@
                 align-items: center;
                 position: absolute;
                 top: -52px;
-                right: 180px;
+                right: calc(4% + 130px);
                 font-size: 1.75rem;
                 color: #001833;
                 -webkit-text-stroke: 1px #4df4ff;
@@ -178,7 +182,7 @@
                 padding: 8px 15px;
                 cursor: pointer;
                 font-family: "Forma DJR", sans-serif;
-                font-size: 1rem;
+                font-size: 1.5rem;
                 transition: background-color 0.3s, color 0.3s;
             }
 
@@ -205,7 +209,7 @@
 
             .factor-label {
                 margin-bottom: 5px;
-                font-size: 1rem;
+                font-size: 1.5rem;
             }
 
             .problem-container {
@@ -249,7 +253,7 @@
             }
 
             #time-result {
-                font-size: 1.2rem;
+                font-size: 1.5rem;
             }
 
             .status {
@@ -262,7 +266,7 @@
             #logo {
                 position: absolute;
                 top: -67px;
-                right: 52px;
+                right: 4%;
                 width: 120px;
             }
 
@@ -559,7 +563,7 @@
                 getDocs,
             } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-            const NUM_CORRECT = 10;
+            const NUM_CORRECT = 1;
 
             async function saveResult(result) {
                 try {
