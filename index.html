@@ -192,6 +192,13 @@
                 color: #001833;
             }
 
+            .factor-progress {
+                font-size: 1.2rem;
+                margin-left: 10px;
+                color: #4df4ff;
+                margin-top: 5px; /* Added margin to separate from status */
+            }
+
             .factor-selection {
                 display: none;
                 flex-direction: column;
@@ -258,7 +265,7 @@
 
             .status {
                 text-align: center;
-                margin-top: -28px;
+                margin-top: -48px;
                 height: 1.5em;
                 font-size: 1rem;
             }
@@ -477,6 +484,7 @@
                 >
                     Start Experiment
                 </button>
+                <span class="factor-progress" id="factor-progress"></span>
             </div>
 
             <div class="problem-container" id="problem-container">
@@ -563,7 +571,8 @@
                 getDocs,
             } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-            const NUM_CORRECT = 10;
+            const NUM_CORRECT = 1,
+                NUM_TRIALS_PER_COMBINATION = 2;
 
             async function saveResult(result) {
                 try {
@@ -582,17 +591,20 @@
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     const comboKey = `${data.participant}_${data.factors.audio}_${data.factors.problem}_${data.factors.presentation}`;
-                    state.completedCombinations[comboKey] = true;
+                    if (!state.completedCombinations[comboKey]) {
+                        state.completedCombinations[comboKey] = 0;
+                    }
+                    state.completedCombinations[comboKey]++;
                 });
                 state.resultsLoaded = true;
                 updateProgress();
 
                 // Check if participant has completed all combinations
-                const totalCombinations = 8;
+                const totalCombinations = 16;
                 let completed = 0;
                 for (const key in state.completedCombinations) {
                     if (key.startsWith(state.participant)) {
-                        completed++;
+                        completed += state.completedCombinations[key]; // Add the number of times *this* combination was completed
                     }
                 }
                 const percentage = Math.floor(
@@ -712,9 +724,13 @@
                     (val) => val !== null
                 );
                 const startBtn = document.getElementById("start-btn");
+                const progressSpan = document.getElementById("factor-progress");
                 if (allSelected) {
                     const comboKey = getCombinationKey();
-                    if (state.completedCombinations[comboKey]) {
+                    const completedCount =
+                        state.completedCombinations[comboKey] || 0;
+                    progressSpan.textContent = `${completedCount}/${NUM_TRIALS_PER_COMBINATION}`;
+                    if (completedCount >= NUM_TRIALS_PER_COMBINATION) {
                         startBtn.disabled = true;
                         document.getElementById("status").textContent =
                             "This combination has already been completed";
@@ -726,6 +742,7 @@
                     }
                 } else {
                     startBtn.style.visibility = "hidden";
+                    progressSpan.textContent = ""; // Clear progress if not all factors are selected
                 }
             }
 
@@ -737,7 +754,10 @@
             async function startExperiment() {
                 // Check if this combination has already been completed
                 const combination = getCombinationKey();
-                if (state.completedCombinations[combination]) {
+                if (
+                    state.completedCombinations[combination] >=
+                    NUM_TRIALS_PER_COMBINATION
+                ) {
                     document.getElementById("status").textContent =
                         "This combination has already been completed";
                     return;
@@ -857,7 +877,10 @@
                 });
 
                 const combination = getCombinationKey();
-                state.completedCombinations[combination] = true;
+                if (!state.completedCombinations[combination]) {
+                    state.completedCombinations[combination] = 0;
+                }
+                state.completedCombinations[combination]++;
 
                 const accuracy = (
                     (state.correctCount / state.problemCount) *
@@ -891,7 +914,7 @@
                 document.getElementById("results").style.display = "none";
 
                 // Check if participant has completed all combinations
-                const totalCombinations = 8;
+                const totalCombinations = 16;
                 let completed = 0;
                 for (const key in state.completedCombinations) {
                     if (key.startsWith(state.participant)) {
@@ -928,6 +951,9 @@
                         .querySelectorAll(".factor .btn")
                         .forEach((btn) => btn.classList.remove("selected"));
                     document.getElementById("start-btn").disabled = true;
+                    document.getElementById("start-btn").style.visibility =
+                        "hidden"; // Hide the start button
+                    document.getElementById("factor-progress").textContent = ""; // Clear the progress text
                 }
             }
 
@@ -937,11 +963,11 @@
 
             function updateProgress() {
                 if (!state.participant || !state.resultsLoaded) return;
-                const totalCombinations = 8;
+                const totalCombinations = 16;
                 let completed = 0;
                 for (const key in state.completedCombinations) {
                     if (key.startsWith(state.participant)) {
-                        completed++;
+                        completed += state.completedCombinations[key]; // sum up counts for each combination
                     }
                 }
                 const percentage = Math.floor(
@@ -955,8 +981,6 @@
                 document.querySelector(
                     ".progress-fill"
                 ).style.width = `${percentage}%`;
-
-                // Don't manage displays here - let loadParticipantResults and resetExperiment handle that
             }
 
             // Text-to-speech functions remain unchanged
